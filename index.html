@@ -1,0 +1,509 @@
+
+<!---        Created by Tim Birtles        --->
+<!---        Last Edit --/--/----          --->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Birdle</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+<style>
+  body {
+    zoom: 1.2;
+    -moz-transform: scale(1.2);
+    -moz-transform-origin: 0 0;
+  }
+  
+  .bg-image {
+    /* The image used */
+    background-image: url("https://images.wallpapersden.com/image/download/lonely-road-at-night_a21rZ2uUmZqaraWkpJRmbmdlrWZlbWU.jpg");
+    
+    /* Add the blur effect */
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+    
+    /* Full height */
+    height: 100%; 
+    
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .Letter_Input {
+    width: 50px;
+    max-width: 50px;
+    text-transform:uppercase;
+    margin-bottom: 5px;
+  }
+  .small-input {
+ width: 5px !important;
+}
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%; /* Could be more or less, depending on screen size */
+}
+.invisible {
+  display: none;
+}
+.fade-in {
+  animation: fadeIn 2s;
+  -webkit-animation: fadeIn 2s;
+  -moz-animation: fadeIn 2s;
+  -o-animation: fadeIn 2s;
+  -ms-animation: fadeIn 2s;
+}
+@keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-moz-keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-webkit-keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-o-keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-ms-keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+/* The closeModal Button */
+.closeModal {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.closeModal:hover,
+.closeModal:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+input::placeholder {
+  color: #1c87c9;
+  opacity: 1;
+}
+::placeholder {
+  color: white;
+  opacity: 1; /* Firefox */
+}
+::-webkit-input-placeholder {
+  color: white;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+ color: white;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+ color: white;
+}
+</style>
+</head>
+<body>
+  <div class="bg-image"></div>
+  <div id="liveAlertPlaceholder"></div>
+
+  <div id="tutorialModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content fade-in">
+      <span class="closeModal">&times;</span>
+      <div class="alert alert-warning" role="alert">
+        <p>Guess the BIRDLE in five tries.<hr>
+
+          Hit the enter button to submit.<hr>
+          
+          After each guess, the color of the tiles will change to show how close your guess was to the word.</p>
+        <div style="display: flex; margin: 0 auto; vertical-align: middle;">
+          <input maxlength="1" placeholder="W" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" style="background-color:#25ab03;" placeholder="O" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="R" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="D" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="S" class="form-control form-control-lg Letter_Input" disabled>
+          <p style="vertical-align: middle;">&nbspThe letter is in the word and in the correct spot</p>
+        </div>
+        <div style="display: flex; margin: 0 auto;">
+          <input maxlength="1" placeholder="C" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="H" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="E" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="S" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" style="background-color:#c7bb0e;" placeholder="T" class="form-control form-control-lg Letter_Input" disabled>
+          <p">&nbspThe letter is in the word but not in the correct spot</p>
+        </div>
+        <div style="display: flex; margin: 0 auto;">
+          <input maxlength="1" placeholder="F" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="O" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" style="background-color:#5c5c5a;" placeholder="C" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="U" class="form-control form-control-lg Letter_Input" disabled>
+          <input maxlength="1" placeholder="S" class="form-control form-control-lg Letter_Input" disabled>
+          <p>&nbspThe letter is not in the word</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="correctGuessModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content fade-in">
+      <span class="closeModal">&times;</span>
+      <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Birdle Completed!</h4>
+        <p id="attemptsModal"></span></p>
+        <hr>
+        <p class="mb-0"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="incorrectGuessModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="closeModal">&times;</span>
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Better luck next time!</h4>
+        <p id="wordReveal"></p>
+      </div>
+    </div>
+  </div>
+
+<br><br>
+<div id="LoadingButton" style="align-content: center; display: none; justify-content: center;">
+  <button class="btn btn-success" type="button" disabled>
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Loading...
+  </button>
+  
+ </div>
+<br>
+
+<div id="inputHolder" class="invisible">
+ <div style="align-content: center; display: flex; margin: 0 auto; justify-content: center;" class="attempt1">
+  <div>
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt1" id="a1i1">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt1" id="a1i2">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt1" id="a1i3">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt1" id="a1i4">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt1" id="a1i5">
+  </div>
+</div>
+
+<div style="align-content: center; display: flex; margin: 0 auto; justify-content: center;" class="attempt2">
+  <div>
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt2" id="a2i1">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt2" id="a2i2">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt2" id="a2i3">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt2" id="a2i4">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt2" id="a2i5">
+  </div>
+</div>
+
+<div style="align-content: center; display: flex; margin: 0 auto; justify-content: center;" class="attempt3">
+  <div>
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt3" id="a3i1">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt3" id="a3i2">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt3" id="a3i3">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt3" id="a3i4">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt3" id="a3i5">
+  </div>
+</div>
+
+<div style="align-content: center; display: flex; margin: 0 auto; justify-content: center;" class="attempt4">
+  <div>
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt4" id="a4i1">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt4" id="a4i2">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt4" id="a4i3">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt4" id="a4i4">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt4" id="a4i5">
+  </div>
+</div>
+
+<div style="align-content: center; display: flex; margin: 0 auto; justify-content: center;" class="attempt5">
+  <div>
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt5" id="a5i1">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt5" id="a5i2">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt5" id="a5i3">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt5" id="a5i4">
+  </div>
+  <div class="">
+    <input  maxlength="1" class="form-control form-control-lg Letter_Input attempt5" id="a5i5">
+  </div>
+</div>
+
+<div style="align-content: center; display: flex; justify-content: center;">
+  <button type="button" onclick='Check_Word();' class="button-color btn btn-success">Check</button> 
+ </div>
+ </div>
+<script>
+
+let attempt = 1;
+let word = "";
+var usedChars = [];
+var theirWord = [];
+var ended = false;
+wordMeaning = "";
+
+
+$(document).ready(function() { 
+  //document.body.style.backgroundImage = 'url("https://images.wallpapersden.com/image/download/lonely-road-at-night_a21rZ2uUmZqaraWkpJRmbmdlrWZlbWU.jpg")';
+  tutorialModal.style.display = "block";
+  //Get_Word();
+  var cols = document.getElementsByClassName('attempt2');
+	for(i = 0; i < cols.length; i++) {
+    cols[i].setAttribute('readonly', true);
+	}
+  cols = document.getElementsByClassName('attempt3');
+	for(i = 0; i < cols.length; i++) {
+    cols[i].setAttribute('readonly', true);
+	}
+  cols = document.getElementsByClassName('attempt4');
+	for(i = 0; i < cols.length; i++) {
+    cols[i].setAttribute('readonly', true);
+	}
+  cols = document.getElementsByClassName('attempt5');
+	for(i = 0; i < cols.length; i++) {
+    cols[i].setAttribute('readonly', true);
+	}
+});
+
+// Get the input field
+var enterKeyPress = document;
+
+// Execute a function when the user releases a key on the keyboard
+enterKeyPress.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Check_Word();
+  }
+});
+
+function GetAPIWord() {
+  var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "https://random-word-api.herokuapp.com/word?number=1", false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+function Get_Word() {
+  
+  var randomWord = GetAPIWord()
+  randomWord=randomWord.replace("["," ");
+  randomWord=randomWord.replace("]", "");
+  randomWord=randomWord.replace(" ", "");
+  randomWord=randomWord.replace(/["]+/g, '')
+  console.log(randomWord);
+  if (randomWord.length==5) {
+    word=randomWord.toUpperCase();
+    console.log(word);
+    document.getElementById("LoadingButton").innerHTML='<h1><u>Birdle</u></h1><br>';
+    document.getElementById("LoadingButton").classList.add("fade-in");
+    document.getElementById("LoadingButton").style.color = "#ffffff";
+    document.getElementById("inputHolder").classList.remove("invisible");
+    document.getElementById("inputHolder").classList.add("fade-in");
+    
+  }
+  else {
+    Get_Word();
+  }
+  
+}
+
+function Enable_Row(rowNum=0) {
+  var className = 'attempt' + rowNum;
+  cols = document.getElementsByClassName(className);
+  $("." + className).prop("readonly", false);
+	for(i = 0; i < cols.length-1; i++) {
+    $("." + className).prop("readonly", false);
+	}
+}
+
+function Word_Guessed_Correctly(attempts) {
+  ended = true;
+  correctGuessModalV.style.display = "block";
+  document.getElementById("attemptsModal").innerHTML = 'Attempts: <span class="badge badge-primary">' + attempts + "</span>";
+}
+
+var correctGuessModalV = document.getElementById("correctGuessModal");
+var span = document.getElementsByClassName("closeModal")[0];
+var incorrectGuessModalV = document.getElementById("incorrectGuessModal");
+var tutorialModal = document.getElementById("tutorialModal");
+
+function Fade_In_Display() {
+    document.getElementById("LoadingButton").style.display="flex";
+    tutorialModal.style.display = "none";
+    setTimeout(Get_Word, 1000);
+}
+
+span.onclick = function() {
+  if (ended != true) {
+    document.getElementById("LoadingButton").style.display="flex";
+    tutorialModal.style.display = "none";
+    setTimeout(Get_Word, 1000);
+    
+  }
+  else {
+    correctGuessModalV.style.display = "none";
+    incorrectGuessModalV.style.display = "none";
+    tutorialModal.style.display = "none";
+  }
+}
+
+window.onclick = function(event) {
+  if (event.target == incorrectGuessModalV || event.target == correctGuessModalV || event.target==tutorialModal) {
+    if (ended != true) {
+      document.getElementById("LoadingButton").style.display="flex";
+      tutorialModal.style.display = "none";
+      setTimeout(Get_Word, 1000);
+    }
+    else {
+    correctGuessModalV.style.display = "none";
+    incorrectGuessModalV.style.display = "none";
+    tutorialModal.style.display = "none";
+    }
+  }
+}
+
+
+function Check_Word() 
+{
+  var theirWord = [];
+  var wordA = [];
+  var sorted = [];
+  var inputs = [];
+  var correctChars = 0;
+  var correctInputs = true;
+
+  for (i=0; i<word.length; i++) {
+    wordA.push(word[i]);
+  }
+
+  
+  for (i=1; i<6; i++) { 
+		var id = "a" + attempt + "i" + i;
+        var elem = document.getElementById(id);
+		var inputChar = elem.value;
+		inputChar = inputChar.toUpperCase();
+		if (inputChar == null || inputChar == "") correctInputs = false;
+	}
+  
+	if (correctInputs) {
+		for (i=1; i<6; i++) {
+     var id = "a" + attempt + "i" + i;
+			var elem = document.getElementById(id);
+			var inputChar = elem.value;
+			inputChar = inputChar.toUpperCase();
+			if (inputChar == word[i-1]) {
+			  inputs.push(elem);
+			  wordA.splice(wordA.indexOf(inputChar),1);
+			  elem.style.backgroundColor="#25ab03";
+			  correctChars++;
+			}
+			else if (wordA.includes(inputChar)) {
+			  elem.style.backgroundColor="#c7bb0e";
+			  wordA.splice(wordA.indexOf(inputChar),1);
+			}
+			else {
+			  elem.style.backgroundColor="#5c5c5a";
+			}
+		}
+	
+    if (correctChars == 5) {
+      Word_Guessed_Correctly(attempt);
+    }
+    else {
+      console.log("Attempt: " + attempt);
+      if (attempt == 5) {
+        ended = true;
+        incorrectGuessModalV.style.display = "block";
+        document.getElementById("wordReveal").innerHTML="The word was <b>" + word + "</b>";
+      }
+      attempt++;
+      usedChars.length = 0;
+      correctChars = 0;
+      Enable_Row(attempt);
+      
+    }
+  }
+}
+
+</script>
+
+</body>
+</html>
